@@ -9,7 +9,7 @@
 </div>
 
 
-* 190+ aerial videos from different sources.
+* [190+ aerial videos](https://aabytt.github.io/aerial-preview/) from different sources.
 * 40+ locales for OSD
 * Source type selection (FullHD/4k SDR or Dolby Vision)
 * Requires root and Homebrew channel
