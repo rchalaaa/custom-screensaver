@@ -138,12 +138,12 @@ WebOSWindow {
         }
         Text {
             id : name
-            opacity : settings.osdOpacity / 100
+            opacity : 0
             text : poi.strings[playList.assets[randomIndex].localizedNameKey]
             font.family : segoeUILight.name
             font.letterSpacing : -1
             fontSizeMode : Text.Fit
-            font.pixelSize : 56
+            font.pixelSize : 54
             y : parent.height * 0.9
             color : "white"
             style : Text.Raised
@@ -151,12 +151,12 @@ WebOSWindow {
         }
         Text {
             id : poiOSD
-            opacity : name.opacity
-            text : poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]]
+            opacity : settings.osdOpacity / 100
+            text : poi.strings[playList.assets[randomIndex].localizedNameKey]
             font.family : name.font.family
             font.letterSpacing : name.font.letterSpacing
             fontSizeMode : name.fontSizeMode
-            font.pixelSize : name.font.pixelSize - 16
+            font.pixelSize : name.font.pixelSize
             y : name.y + name.font.pixelSize + 10
             color : name.color
             style : name.style
@@ -166,11 +166,11 @@ WebOSWindow {
             id : timeOSD
             horizontalAlignment : Text.AlignRight
             anchors.right : parent.right
-            opacity : name.opacity
+            opacity : settings.osdOpacity / 100
             font.family : name.font.family
             font.letterSpacing : name.font.letterSpacing
-            font.pixelSize : name.font.pixelSize + 23
-            y : dateOSD.y - name.font.pixelSize - 40
+            font.pixelSize : 56 + 30
+            y : dateOSD.y - 56 - 40
             color : name.color
             style : name.style
             styleColor : name.styleColor
@@ -180,11 +180,11 @@ WebOSWindow {
             id : dateOSD
             horizontalAlignment : Text.AlignRight
             anchors.right : parent.right
-            opacity : name.opacity
+            opacity : settings.osdOpacity / 100
             font.family : name.font.family
             font.letterSpacing : name.font.letterSpacing
-            font.pixelSize : name.font.pixelSize - 16
-            y : name.y + name.font.pixelSize + 5
+            font.pixelSize : 56 - 16
+            y : name.y + 56 + 15
             color : name.color
             style : name.style
             styleColor : name.styleColor
@@ -199,7 +199,7 @@ WebOSWindow {
         anchors.margins : 25
         opacity : 0.7
         font.family : name.font.family
-        font.pixelSize : name.font.pixelSize - 30
+        font.pixelSize : 56 - 30
         color : name.color
         style : name.style
         styleColor : name.styleColor
