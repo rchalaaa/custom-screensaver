@@ -1,8 +1,5 @@
 #!/bin/sh
 
-SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-QML_PATH="$SCRIPT_DIR/screensaver-main.qml"
-
 find_mount_target() {
     if [ -n "${MOUNT_TARGET:-}" ] && [ -f "$MOUNT_TARGET" ]; then
         echo "$MOUNT_TARGET"
@@ -38,20 +35,15 @@ is_mounted() {
     fi
 }
 
-if [ ! -f "$QML_PATH" ]; then
-    echo "[-] Replacement file does not exist: $QML_PATH" >&2
-    exit 1
-fi
-
 MOUNT_TARGET="$(find_mount_target || true)"
 if [ -z "$MOUNT_TARGET" ]; then
     echo "[-] Could not detect screensaver QML target under /usr/palm/applications/com.webos.app.screensaver" >&2
     exit 1
 fi
 
-if ! is_mounted "$MOUNT_TARGET"; then
-    mount --bind "$QML_PATH" "$MOUNT_TARGET"
-    echo "[+] Enabled successfully: $MOUNT_TARGET" >&2
+if is_mounted "$MOUNT_TARGET"; then
+    umount "$MOUNT_TARGET"
+    echo "[+] Disabled successfully: $MOUNT_TARGET" >&2
 else
-    echo "[~] Enabled already: $MOUNT_TARGET" >&2
+    echo "[~] Disabled already: $MOUNT_TARGET" >&2
 fi

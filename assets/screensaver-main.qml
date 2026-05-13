@@ -13,6 +13,7 @@ import Eos.Window 0.1
 import Eos.Items 0.1
 import WebOS.Global 1.0
 import QtQuick.Window 2.2
+import QtQuick.Layouts 1.3
 import WebOSServices 1.0
 import iLib 1.0 as I
 
@@ -41,8 +42,11 @@ WebOSWindow {
         id : ilib
     }
     FontLoader {
-        id : segoeUILight
-        source : basePath + 'SegoeUI-Light.ttf'
+        id : osdFontLoader
+        source : basePath + (settings && settings.osdFontFile ? settings.osdFontFile : 'SegoeUI-Light.ttf')
+    }
+    function osdFontFamily() {
+        return osdFontLoader.name
     }
     Timer {
         id : refreshOSD
@@ -114,83 +118,134 @@ WebOSWindow {
         }
     }
     Rectangle {
-        id : osd
-        opacity : 0
-        visible : true
-        color : "transparent"
-        anchors.fill : parent
-        anchors.margins : 65
-        OpacityAnimator {
-            id : fadeInOsd
-            target : osd
-            from : 0
-            to : 1
-            duration : 3000
-            running : false
+    id : osd
+    opacity : 0
+    visible : true
+    color : "transparent"
+    anchors.fill : parent
+    anchors.margins : 50
+
+    OpacityAnimator {
+        id : fadeInOsd
+        target : osd
+        from : 0
+        to : 1
+        duration : 3000
+        running : false
+    }
+
+    OpacityAnimator {
+        id : fadeOutOsd
+        target : osd
+        from : 1
+        to : 0
+        duration : 5000
+        running : false
+    }
+
+    RowLayout {
+        anchors.left : parent.left
+        anchors.right : parent.right
+        anchors.bottom : parent.bottom
+
+        spacing : 0
+
+        ColumnLayout {
+            id : leftColumn
+            Layout.alignment: Qt.AlignLeft | Qt.AlignBottom
+            Layout.fillWidth: true
+            spacing : 2
+
+            Text {
+                id : name
+                Layout.fillWidth: true
+                Rectangle {
+                    anchors.fill : parent
+                    color : "#66ff0000"
+                    z : -1
+                }
+                opacity : settings.osdOpacity / 100
+                visible : settings ? (settings.showName !== false) : true
+                text : poi.strings[playList.assets[randomIndex].localizedNameKey]
+                font.family : osdFontFamily()
+                font.letterSpacing : -1
+                font.pixelSize : 54
+                fontSizeMode : Text.Fit
+                color : "white"
+                style : Text.Raised
+                styleColor : "black"
+                elide : Text.ElideRight
+            }
+
+            Text {
+                id : poiOSD
+                Layout.fillWidth: true
+                Rectangle {
+                    anchors.fill : parent
+                    color : "#6600ff00"
+                    z : -1
+                }
+                opacity : name.opacity
+                visible : settings ? (settings.showPoi !== false) : true
+                text : poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]]
+                font.family : name.font.family
+                font.letterSpacing : name.font.letterSpacing
+                font.pixelSize : name.font.pixelSize - 10
+                fontSizeMode : name.fontSizeMode
+                color : name.color
+                style : name.style
+                styleColor : name.styleColor
+                elide : Text.ElideRight
+            }
         }
-        OpacityAnimator {
-            id : fadeOutOsd
-            target : osd
-            from : 1
-            to : 0
-            duration : 5000
-            running : false
-        }
-        Text {
-            id : name
-            opacity : 0
-            text : poi.strings[playList.assets[randomIndex].localizedNameKey]
-            font.family : segoeUILight.name
-            font.letterSpacing : -1
-            fontSizeMode : Text.Fit
-            font.pixelSize : 54
-            y : parent.height * 0.9
-            color : "white"
-            style : Text.Raised
-            styleColor : "black"
-        }
-        Text {
-            id : poiOSD
-            opacity : settings.osdOpacity / 100
-            text : poi.strings[playList.assets[randomIndex].localizedNameKey]
-            font.family : name.font.family
-            font.letterSpacing : name.font.letterSpacing
-            fontSizeMode : name.fontSizeMode
-            font.pixelSize : name.font.pixelSize
-            y : name.y + name.font.pixelSize + 10
-            color : name.color
-            style : name.style
-            styleColor : name.styleColor
-        }
-        Text {
-            id : timeOSD
-            horizontalAlignment : Text.AlignRight
-            anchors.right : parent.right
-            opacity : settings.osdOpacity / 100
-            font.family : name.font.family
-            font.letterSpacing : name.font.letterSpacing
-            font.pixelSize : 56 + 30
-            y : dateOSD.y - 56 - 40
-            color : name.color
-            style : name.style
-            styleColor : name.styleColor
-            fontSizeMode : name.fontSizeMode
-        }
-        Text {
-            id : dateOSD
-            horizontalAlignment : Text.AlignRight
-            anchors.right : parent.right
-            opacity : settings.osdOpacity / 100
-            font.family : name.font.family
-            font.letterSpacing : name.font.letterSpacing
-            font.pixelSize : 56 - 16
-            y : name.y + 56 + 15
-            color : name.color
-            style : name.style
-            styleColor : name.styleColor
-            fontSizeMode : name.fontSizeMode
+
+        ColumnLayout {
+            id : rightColumn
+            Layout.alignment: Qt.AlignRight | Qt.AlignBottom
+            spacing : 2
+
+            Text {
+                id : timeOSD
+                Layout.alignment: Qt.AlignRight
+                Rectangle {
+                    anchors.fill : parent
+                    color : "#660000ff"
+                    z : -1
+                }
+                opacity : name.opacity
+                visible : settings ? (settings.showTime !== false) : true
+                font.family : name.font.family
+                font.letterSpacing : name.font.letterSpacing
+                font.pixelSize : name.font.pixelSize + 36
+                fontSizeMode : name.fontSizeMode
+                color : name.color
+                style : name.style
+                styleColor : name.styleColor
+                horizontalAlignment : Text.AlignRight
+            }
+
+            Text {
+                id : dateOSD
+                Layout.alignment: Qt.AlignRight
+                Rectangle {
+                    anchors.fill : parent
+                    color : "#66ffff00"
+                    z : -1
+                }
+                opacity : name.opacity
+                visible : settings ? (settings.showDate !== false) : true
+                font.family : name.font.family
+                font.letterSpacing : name.font.letterSpacing
+                font.pixelSize : name.font.pixelSize - 10
+                fontSizeMode : name.fontSizeMode
+                color : name.color
+                style : name.style
+                styleColor : name.styleColor
+                horizontalAlignment : Text.AlignRight
+            }
         }
     }
+}
     Text {
         id : debug
         visible : settings.debug
@@ -199,7 +254,7 @@ WebOSWindow {
         anchors.margins : 25
         opacity : 0.7
         font.family : name.font.family
-        font.pixelSize : 56 - 30
+        font.pixelSize : name.font.pixelSize - 30
         color : name.color
         style : name.style
         styleColor : name.styleColor
