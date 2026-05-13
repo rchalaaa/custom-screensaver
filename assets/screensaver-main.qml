@@ -159,11 +159,6 @@ WebOSWindow {
             Text {
                 id : name
                 Layout.fillWidth: true
-                Rectangle {
-                    anchors.fill : parent
-                    color : "#66ff0000"
-                    z : -1
-                }
                 opacity : settings.osdOpacity / 100
                 visible : settings ? (settings.showName !== false) : true
                 text : poi.strings[playList.assets[randomIndex].localizedNameKey]
@@ -180,11 +175,6 @@ WebOSWindow {
             Text {
                 id : poiOSD
                 Layout.fillWidth: true
-                Rectangle {
-                    anchors.fill : parent
-                    color : "#6600ff00"
-                    z : -1
-                }
                 opacity : name.opacity
                 visible : settings ? (settings.showPoi !== false) : true
                 text : poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]]
@@ -202,16 +192,11 @@ WebOSWindow {
         ColumnLayout {
             id : rightColumn
             Layout.alignment: Qt.AlignRight | Qt.AlignBottom
-            spacing : 2
+            spacing : 0
 
             Text {
                 id : timeOSD
                 Layout.alignment: Qt.AlignRight
-                Rectangle {
-                    anchors.fill : parent
-                    color : "#660000ff"
-                    z : -1
-                }
                 opacity : name.opacity
                 visible : settings ? (settings.showTime !== false) : true
                 font.family : name.font.family
@@ -227,11 +212,6 @@ WebOSWindow {
             Text {
                 id : dateOSD
                 Layout.alignment: Qt.AlignRight
-                Rectangle {
-                    anchors.fill : parent
-                    color : "#66ffff00"
-                    z : -1
-                }
                 opacity : name.opacity
                 visible : settings ? (settings.showDate !== false) : true
                 font.family : name.font.family
