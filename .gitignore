@@ -1,3 +1,4 @@
 node_modules
 .enyocache
 dist
+*.ipk
