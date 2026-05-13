@@ -8,6 +8,16 @@
 
 </div>
 
+What's new in this fork
+-----------------------
+
+This fork focuses on a better day-to-day experience for managing Aerial on webOS:
+
+* Improved configuration UI designed for TV remote navigation.
+* Better UX with a single enable/disable switch instead of separate autostart and temporary apply controls.
+* On-screen information toggles for name, points of interest, time, date, and debug info.
+* Custom OSD font support: add `.ttf` or `.otf` files to `assets/` and select them from the UI.
+* More customizable overlay controls for language, opacity, video source, fallback quality, and text display.
 
 * [190+ aerial videos](https://aabytt.github.io/aerial-preview/) from different sources.
 * Modern non-Enyo configuration UI built for TV remote navigation.
