@@ -4,8 +4,8 @@
     "main": "frontend/index.js",
     "moduleDir": "frontend",
     "scripts": {
-        "build": "enyo pack",
-        "package": "ares-package dist/ -e enyo-ilib",
+        "build": "node tools/build.js",
+        "package": "ares-package dist/",
         "manifest": "tools/gen-manifest.js ${npm_package_name}.manifest.json",
         "deploy": "ares-install ${npm_package_name}_${npm_package_version}_all.ipk",
         "launch": "ares-launch ${npm_package_name}",
@@ -20,20 +20,13 @@
         "type": "git",
         "url": "https://github.com/aabytt/custom-screensaver-aerial"
     },
-    "styles": [],
+    "styles": [
+        "frontend/styles.css"
+    ],
     "author": "",
     "license": "MIT",
     "devDependencies": {
-        "@webosose/ares-cli": "^2.2.0",
-        "enyo-dev": "^1.0.0"
+        "@webosose/ares-cli": "^2.2.0"
     },
-    "dependencies": {
-        "dompurify": "^2.3.4",
-        "enyo-ilib": "git+https://github.com/jaycanuck/enyo-ilib.git",
-        "enyo-webos": "git+https://github.com/enyojs/enyo-webos.git",
-        "layout": "git+https://github.com/enyojs/layout.git",
-        "moonstone": "git+https://github.com/enyojs/moonstone.git",
-        "spotlight": "git+https://github.com/enyojs/spotlight.git",
-        "svg": "git+https://github.com/enyojs/svg.git"
-    }
+    "dependencies": {}
 }

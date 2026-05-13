@@ -10,8 +10,11 @@
 
 
 * [190+ aerial videos](https://aabytt.github.io/aerial-preview/) from different sources.
-* 40+ locales for OSD
-* Source type selection (FullHD/4k SDR or Dolby Vision)
+* Modern non-Enyo configuration UI built for TV remote navigation.
+* One-click enable/disable flow that applies the custom screensaver now and across reboots.
+* 40+ locales for OSD.
+* Source type selection (FullHD/4k SDR or Dolby Vision).
+* OSD controls for opacity, shown fields, language, and bundled font files.
 * Requires root and Homebrew channel
 * Compatible with webOS 5 (2020), webOS 6 (2021), webOS 22 (2022), webOS 23 (2023)
 
@@ -22,9 +25,24 @@ Disclaimer
 Features
 --------
 
-* Autostart registration
-* Temporary apply
+* Enable or disable the custom screensaver from a single setting.
+* Automatically applies or unapplies the screensaver whenever the app opens.
+* Automatically manages the Homebrew boot script for persistence after reboot.
 * Launch screensaver immediately for testing
+* Custom OSD fonts: add `.ttf` or `.otf` files to `assets/`, then rebuild so they appear in the UI.
+
+Development
+-----------
+
+This fork no longer uses Enyo/Moonstone for the configuration app. The webOS app is built as a small static app:
+
+```sh
+pnpm install
+pnpm run build
+pnpm run package
+```
+
+`pnpm run build` creates `dist/` and generates the font selector from font files in `assets/`. `pnpm run package` creates the installable `.ipk` with `ares-package`.
 
 Installation
 ------------
