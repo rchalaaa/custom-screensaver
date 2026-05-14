@@ -65,6 +65,8 @@ if (window.AERIAL_FONT_OPTIONS && window.AERIAL_FONT_OPTIONS.length) {
   fontOptions = window.AERIAL_FONT_OPTIONS;
 }
 
+var uiText = {};
+
 var settings = {
   enabled: true,
   localeLang: "en-US",
@@ -72,6 +74,7 @@ var settings = {
   sourceType: "url-4K-SDR",
   sourceTypeIndex: 3,
   osdOpacity: 100,
+  osdTextScale: 100,
   osdFontFile: "SegoeUI-Light.ttf",
   osdFontFileIndex: 0,
   debug: false,
@@ -79,21 +82,20 @@ var settings = {
   showName: true,
   showTime: true,
   showDate: true,
-  playLowerQuality: true,
 };
 
 var controls = {};
 var openSelectKey = null;
 var editingControlId = null;
 var navPositions = {
-  testRun: { row: 0, col: 1 },
-  sourceType: { row: 1, col: 0 },
-  playLowerQuality: { row: 1, col: 1 },
-  enabled: { row: 1, col: 2 },
-  localeLang: { row: 2, col: 0 },
-  showPoi: { row: 2, col: 1 },
-  showName: { row: 2, col: 2 },
-  osdOpacity: { row: 3, col: 0 },
+  testRun: { row: 0, col: 2 },
+  enabled: { row: 1, col: 0 },
+  sourceType: { row: 1, col: 1 },
+  localeLang: { row: 1, col: 2 },
+  osdOpacity: { row: 2, col: 0 },
+  showName: { row: 2, col: 1 },
+  showPoi: { row: 2, col: 2 },
+  osdTextScale: { row: 3, col: 0 },
   showTime: { row: 3, col: 1 },
   showDate: { row: 3, col: 2 },
   osdFontFile: { row: 4, col: 0 },
@@ -111,43 +113,23 @@ function renderApp() {
     '<main class="app-shell">' +
     '  <section class="hero-card">' +
     "    <div>" +
-    '      <p class="eyebrow">Custom screensaver</p>' +
+    '      <p class="eyebrow" data-i18n="appEyebrow">Custom screensaver</p>' +
     "      <h1>webOS Aerial</h1>" +
-    '      <p class="hero-copy">Tune video quality, overlay text, and screensaver status for your TV from one focused control panel.</p>' +
+    '      <p class="hero-copy" data-i18n="heroCopy">Tune video quality, overlay text, and screensaver status for your TV from one focused control panel.</p>' +
     "    </div>" +
     '    <div class="hero-actions">' +
-    '      <button id="testRun" class="primary-button" type="button">Test run</button>' +
+    '      <button id="testRun" class="primary-button" type="button" data-i18n="testRun">Test run</button>' +
     "    </div>" +
     "  </section>" +
     '  <section class="content-grid">' +
-    '    <section class="panel span-2">' +
-    '      <div class="section-heading">' +
-    "        <p>Playback</p>" +
-    "        <h2>Video source</h2>" +
-    "      </div>" +
-    '      <div class="field-grid">' +
-    '        <label class="field" id="sourceTypeField">' +
-    "          <span>Source video type</span>" +
-    '          <button id="sourceType" class="select-button" type="button">Loading...</button>' +
-    '          <div id="sourceTypeMenu" class="select-menu" role="listbox"></div>' +
-    "        </label>" +
-    '        <label class="toggle-card">' +
-    "          <span>" +
-    "            <strong>Fallback quality</strong>" +
-    "            <small>Try SDR if Dolby Vision video does not exist.</small>" +
-    "          </span>" +
-    '          <input id="playLowerQuality" type="checkbox" />' +
-    "        </label>" +
-    "      </div>" +
-    "    </section>" +
     '    <section class="panel">' +
     '      <div class="section-heading">' +
-    "        <p>Status</p>" +
-    "        <h2>Screensaver</h2>" +
+    '        <p data-i18n="statusEyebrow">Status</p>' +
+    '        <h2 data-i18n="screensaverTitle">Screensaver</h2>' +
     "      </div>" +
     '      <label class="toggle-card large-toggle">' +
     "        <span>" +
-    "          <strong>Enable customscreensaver</strong>" +
+    '          <strong data-i18n="enableScreensaver">Enable customscreensaver</strong>' +
     '          <small id="enabledText">Applies now and after reboot.</small>' +
     "        </span>" +
     '        <input id="enabled" type="checkbox" />' +
@@ -155,36 +137,57 @@ function renderApp() {
     "    </section>" +
     '    <section class="panel">' +
     '      <div class="section-heading">' +
-    "        <p>Overlay</p>" +
-    "        <h2>Text display</h2>" +
+    '        <p data-i18n="playbackEyebrow">Playback</p>' +
+    '        <h2 data-i18n="videoSourceTitle">Video source</h2>' +
+    "      </div>" +
+    '      <label class="field" id="sourceTypeField">' +
+    '        <span data-i18n="sourceVideoType">Source video type</span>' +
+    '        <button id="sourceType" class="select-button" type="button">Loading...</button>' +
+    '        <div id="sourceTypeMenu" class="select-menu" role="listbox"></div>' +
+    "        </label>" +
+    "    </section>" +
+    '    <section class="panel">' +
+    '      <div class="section-heading">' +
+    '        <p data-i18n="localizationEyebrow">Localization</p>' +
+    '        <h2 data-i18n="languageTitle">Language</h2>' +
     "      </div>" +
     '      <label class="field" id="localeLangField">' +
-    "        <span>Language</span>" +
+    '        <span data-i18n="languageLabel">Language</span>' +
     '        <button id="localeLang" class="select-button" type="button">Loading...</button>' +
     '        <div id="localeLangMenu" class="select-menu" role="listbox"></div>' +
     "      </label>" +
+    "    </section>" +
+    '    <section class="panel text-display-panel">' +
+    '      <div class="section-heading">' +
+    '        <p data-i18n="overlayEyebrow">Overlay</p>' +
+    '        <h2 data-i18n="textDisplayTitle">Text display</h2>' +
+    "      </div>" +
     '      <label class="range-field">' +
-    '        <span>Text opacity <strong id="opacityValue">100%</strong></span>' +
+    '        <span><span data-i18n="textOpacity">Text opacity</span> <strong id="opacityValue">100%</strong></span>' +
     '        <input id="osdOpacity" type="range" min="0" max="100" step="5" />' +
     "      </label>" +
+    '      <label class="range-field">' +
+    '        <span><span data-i18n="textScale">Text scale</span> <strong id="scaleValue">x1</strong></span>' +
+    '        <input id="osdTextScale" type="range" min="50" max="150" step="5" />' +
+    "      </label>" +
     '      <label class="field" id="osdFontFileField">' +
-    "        <span>OSD font</span>" +
+    '        <span data-i18n="osdFont">OSD font</span>' +
     '        <button id="osdFontFile" class="select-button" type="button">Loading...</button>' +
     '        <div id="osdFontFileMenu" class="select-menu" role="listbox"></div>' +
     "      </label>" +
     "    </section>" +
     '    <section class="panel span-2">' +
     '      <div class="section-heading">' +
-    "        <p>Details</p>" +
-    "        <h2>On-screen information</h2>" +
+    '        <p data-i18n="detailsEyebrow">Details</p>' +
+    '        <h2 data-i18n="onScreenInfoTitle">On-screen information</h2>' +
     "      </div>" +
     '      <div class="toggle-grid">' +
+    createToggleMarkup("showName", "Name", "Show the aerial video name.") +
     createToggleMarkup(
       "showPoi",
       "Description",
       "Show the aerial video description.",
     ) +
-    createToggleMarkup("showName", "Name", "Show the aerial video name.") +
     createToggleMarkup("showTime", "Time", "Show the current time.") +
     createToggleMarkup("showDate", "Date", "Show the current date.") +
     createToggleMarkup(
@@ -194,10 +197,10 @@ function renderApp() {
     ) +
     "      </div>" +
     "    </section>" +
-    '    <section class="panel status-panel">' +
+    '    <section class="panel status-panel span-2">' +
     '      <div class="section-heading">' +
-    "        <p>Result</p>" +
-    "        <h2>Status</h2>" +
+    '        <p data-i18n="resultEyebrow">Result</p>' +
+    '        <h2 data-i18n="resultTitle">Status</h2>' +
     "      </div>" +
     '      <pre id="result">Loading settings...</pre>' +
     "    </section>" +
@@ -213,7 +216,8 @@ function renderApp() {
     osdFontFileMenu: document.getElementById("osdFontFileMenu"),
     osdOpacity: document.getElementById("osdOpacity"),
     opacityValue: document.getElementById("opacityValue"),
-    playLowerQuality: document.getElementById("playLowerQuality"),
+    osdTextScale: document.getElementById("osdTextScale"),
+    scaleValue: document.getElementById("scaleValue"),
     enabled: document.getElementById("enabled"),
     enabledText: document.getElementById("enabledText"),
     showPoi: document.getElementById("showPoi"),
@@ -235,10 +239,14 @@ function createToggleMarkup(id, title, description) {
   return (
     '<label class="toggle-card">' +
     "  <span>" +
-    "    <strong>" +
+    '    <strong data-i18n="toggle_' +
+    id +
+    '_title">' +
     title +
     "</strong>" +
-    "    <small>" +
+    '    <small data-i18n="toggle_' +
+    id +
+    '_desc">' +
     description +
     "</small>" +
     "  </span>" +
@@ -265,6 +273,66 @@ function fillSelectMenu(key, options) {
   });
 }
 
+function formatTextScale(value) {
+  return (
+    "x" +
+    (Number(value) / 100)
+      .toFixed(2)
+      .replace(/0+$/, "")
+      .replace(/\.$/, "")
+  );
+}
+
+function t(key) {
+  return uiText[key] || key;
+}
+
+function loadUiTranslations(callback) {
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function () {
+    if (request.readyState !== XMLHttpRequest.DONE) {
+      return;
+    }
+
+    if (request.status === 200 || request.status === 0) {
+      try {
+        uiText = JSON.parse(request.responseText).config || {};
+      } catch (error) {
+        console.error("[Aerial] Could not parse UI translations", error);
+        uiText = {};
+      }
+    } else {
+      console.error("[Aerial] Could not load UI translations", request.statusText);
+      uiText = {};
+    }
+
+    if (callback) {
+      callback();
+    }
+  };
+  request.open("GET", "assets/locales/" + (settings.localeLang || "en-US") + ".json");
+  request.send();
+}
+
+function applyUiTranslations() {
+  document.documentElement.lang = settings.localeLang || "en-US";
+  document.title = "webOS Aerial Screensaver";
+  Array.prototype.slice
+    .call(document.querySelectorAll("[data-i18n]"))
+    .forEach(function (element) {
+      element.textContent = t(element.getAttribute("data-i18n"));
+    });
+  updateEnabledText();
+}
+
+function updateEnabledText() {
+  if (!controls.enabledText) {
+    return;
+  }
+  controls.enabledText.textContent =
+    settings.enabled !== false ? t("enabledText") : t("disabledText");
+}
+
 function attachEvents() {
   document.getElementById("testRun").addEventListener("click", function () {
     exec(
@@ -287,6 +355,15 @@ function attachEvents() {
     settings.osdOpacity = Number(controls.osdOpacity.value);
     saveSettings();
   });
+  controls.osdTextScale.addEventListener("input", function () {
+    controls.scaleValue.textContent = formatTextScale(
+      controls.osdTextScale.value,
+    );
+  });
+  controls.osdTextScale.addEventListener("change", function () {
+    settings.osdTextScale = Number(controls.osdTextScale.value);
+    saveSettings();
+  });
   controls.enabled.addEventListener("change", function () {
     settings.enabled = controls.enabled.checked;
     saveSettings(function () {
@@ -294,19 +371,14 @@ function attachEvents() {
     });
   });
 
-  [
-    "playLowerQuality",
-    "showPoi",
-    "showName",
-    "showTime",
-    "showDate",
-    "debug",
-  ].forEach(function (key) {
-    controls[key].addEventListener("change", function () {
-      settings[key] = controls[key].checked;
-      saveSettings();
-    });
-  });
+  ["showPoi", "showName", "showTime", "showDate", "debug"].forEach(
+    function (key) {
+      controls[key].addEventListener("change", function () {
+        settings[key] = controls[key].checked;
+        saveSettings();
+      });
+    },
+  );
 }
 
 function initRemoteNavigation() {
@@ -633,6 +705,9 @@ function selectMenuOption(key, value) {
     settings.osdFontFileIndex = selectedIndex(fontOptions, value);
   }
   updateSelectButtons();
+  if (key === "localeLang") {
+    loadUiTranslations(applyUiTranslations);
+  }
   closeSelectMenu();
   saveSettings();
 }
@@ -662,9 +737,11 @@ function loadInitialState() {
       setResult("Could not load settings: " + request.statusText);
     }
 
-    applySettingsToUi();
-    setResult("Ready.");
-    window.setTimeout(syncScreensaverState, 0);
+    loadUiTranslations(function () {
+      applySettingsToUi();
+      setResult(t("ready"));
+      window.setTimeout(syncScreensaverState, 0);
+    });
   };
   request.open("GET", "assets/settings.json");
   request.send();
@@ -699,19 +776,18 @@ function applySettingsToUi() {
       settings.osdFontFileIndex || settings.osdFontFamilyIndex,
     );
   updateSelectButtons();
+  settings.osdTextScale = settings.osdTextScale || 100;
   controls.osdOpacity.value = settings.osdOpacity;
   controls.opacityValue.textContent = settings.osdOpacity + "%";
-  controls.playLowerQuality.checked = !!settings.playLowerQuality;
+  controls.osdTextScale.value = settings.osdTextScale;
+  controls.scaleValue.textContent = formatTextScale(settings.osdTextScale);
   controls.enabled.checked = settings.enabled !== false;
-  controls.enabledText.textContent =
-    settings.enabled !== false
-      ? "Enabled now and after reboot."
-      : "Disabled now and after reboot.";
   controls.showPoi.checked = settings.showPoi !== false;
   controls.showName.checked = settings.showName !== false;
   controls.showTime.checked = settings.showTime !== false;
   controls.showDate.checked = settings.showDate !== false;
   controls.debug.checked = !!settings.debug;
+  applyUiTranslations();
 }
 
 function updateSelectButtons() {
@@ -776,6 +852,9 @@ function optionValueAt(options, index) {
 
 function mergeSettings(nextSettings) {
   Object.keys(nextSettings).forEach(function (key) {
+    if (key === "playLowerQuality") {
+      return;
+    }
     settings[key] = nextSettings[key];
   });
 }
@@ -787,6 +866,7 @@ function saveSettings(callback) {
     settings.localeLang,
   );
   settings.osdFontFileIndex = selectedIndex(fontOptions, settings.osdFontFile);
+  delete settings.playLowerQuality;
   console.info("[Aerial] Saving settings", settings);
   exec("echo '" + JSON.stringify(settings) + "' > " + settingsPath, callback);
 }
@@ -800,7 +880,7 @@ function syncScreensaverState() {
   });
 
   if (settings.enabled !== false) {
-    controls.enabledText.textContent = "Enabling now and after reboot...";
+    controls.enabledText.textContent = t("enablingText");
     exec(
       "sh " +
         applyPath +
@@ -812,21 +892,21 @@ function syncScreensaverState() {
         linkPath,
       function () {
         console.info("[Aerial] Screensaver enabled and boot link created");
-        controls.enabledText.textContent = "Enabled now and after reboot.";
+        controls.enabledText.textContent = t("enabledText");
       },
     );
   } else {
-    controls.enabledText.textContent = "Disabling now and after reboot...";
+    controls.enabledText.textContent = t("disablingText");
     exec("sh " + unapplyPath + " ; rm -f " + linkPath, function () {
       console.info("[Aerial] Screensaver disabled and boot link removed");
-      controls.enabledText.textContent = "Disabled now and after reboot.";
+      controls.enabledText.textContent = t("disabledText");
     });
   }
 }
 
 function exec(command, callback) {
   console.info("[Aerial] exec", command);
-  setResult("Processing...\n" + command);
+  setResult(t("processing") + "\n" + command);
   requestService(
     hbChannelService,
     "exec",
@@ -895,7 +975,7 @@ function requestService(service, method, parameters, onSuccess, onFailure) {
 function handleExecResult(evt) {
   var output = "";
   if (evt && evt.returnValue !== false) {
-    output = "Success";
+    output = t("success");
     if (evt.stdoutString) {
       output += "\n" + evt.stdoutString;
     }
@@ -903,7 +983,7 @@ function handleExecResult(evt) {
       output += "\n" + evt.stderrString;
     }
   } else {
-    output = "Failed";
+    output = t("failed");
     if (evt && evt.errorText) {
       output += ": " + evt.errorText;
     }
@@ -919,6 +999,6 @@ function handleExecResult(evt) {
 
 function setResult(message) {
   if (controls.result) {
-    controls.result.textContent = message || "Ready.";
+    controls.result.textContent = message || t("ready");
   }
 }

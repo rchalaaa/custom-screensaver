@@ -167,6 +167,11 @@ button {
   margin-bottom: 26px;
 }
 
+.text-display-panel .range-field+.range-field,
+.text-display-panel .range-field+.field {
+  margin-top: 18px;
+}
+
 .field-grid,
 .toggle-grid {
   display: grid;
@@ -272,7 +277,7 @@ button {
 }
 
 .large-toggle {
-  min-height: 190px;
+  min-height: 156px;
 }
 
 .toggle-card span {

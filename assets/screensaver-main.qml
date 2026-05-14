@@ -31,13 +31,13 @@ WebOSWindow {
         localeLang: "en-US",
         sourceType: "url-4K-SDR",
         osdOpacity: 100,
+        osdTextScale: 100,
         osdFontFile: "SegoeUI-Light.ttf",
         debug: false,
         showPoi: true,
         showName: true,
         showTime: true,
-        showDate: true,
-        playLowerQuality: true
+        showDate: true
     })
     property var playList : ({ assets: [] })
     property int randomIndex
@@ -174,7 +174,7 @@ WebOSWindow {
                 text : playList.assets.length ? poi.strings[playList.assets[randomIndex].localizedNameKey] : ""
                 font.family : osdFontFamily()
                 font.letterSpacing : -1
-                font.pixelSize : 54
+                font.pixelSize : 54 * ((settings && settings.osdTextScale ? settings.osdTextScale : 100) / 100)
                 fontSizeMode : Text.Fit
                 color : "white"
                 style : Text.Raised
@@ -190,7 +190,7 @@ WebOSWindow {
                 text : playList.assets.length ? poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]] : ""
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
-                font.pixelSize : name.font.pixelSize - 10
+                font.pixelSize : name.font.pixelSize - 8
                 fontSizeMode : name.fontSizeMode
                 color : name.color
                 style : name.style
@@ -211,7 +211,7 @@ WebOSWindow {
                 visible : settings ? (settings.showTime !== false) : true
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
-                font.pixelSize : name.font.pixelSize + 36
+                font.pixelSize : name.font.pixelSize + 32
                 fontSizeMode : name.fontSizeMode
                 color : name.color
                 style : name.style
@@ -226,7 +226,7 @@ WebOSWindow {
                 visible : settings ? (settings.showDate !== false) : true
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
-                font.pixelSize : name.font.pixelSize - 10
+                font.pixelSize : name.font.pixelSize - 8
                 fontSizeMode : name.fontSizeMode
                 color : name.color
                 style : name.style
@@ -274,11 +274,11 @@ WebOSWindow {
                 videoOutput.source = playList.assets[randomIndex][settings.sourceType]
                     notificationsService.set('disable')
                     videoOutput.play()
-            } else if(settings.sourceType == "url-4K-HDR" && settings.playLowerQuality){
+            } else if(settings.sourceType == "url-4K-HDR"){
                 sourceAlt = " - n/a, trying url-4K-SDR"
                 videoOutput.source = playList.assets[randomIndex]["url-4K-SDR"]
                     videoOutput.play()
-            } else if(settings.sourceType == "url-1080-HDR" && settings.playLowerQuality){
+            } else if(settings.sourceType == "url-1080-HDR"){
                 if(playList.assets[randomIndex]["url-1080-SDR"]){
                     sourceAlt = " - n/a, trying url-1080-SDR"
                     videoOutput.source = playList.assets[randomIndex]["url-1080-SDR"]
@@ -358,9 +358,10 @@ WebOSWindow {
 
         debug.text = "Video " + randomIndex + " of " + playList.assets.length +
         "\n Source Type: " + settings.sourceType + sourceAlt +
-        "\n Try Other Source: " + settings.playLowerQuality +
+        "\n Fallback Source: always on" +
         "\n Locale: " + settings.localeLang +
         "\n OSD opacity: " + settings.osdOpacity + "%" +
+        "\n OSD text scale: x" + ((settings && settings.osdTextScale ? settings.osdTextScale : 100) / 100).toFixed(2) +
         "\n Timecode: " + Math.floor(videoOutput.position / 1000) + " / " + Math.floor(videoOutput.duration / 1000) +
         "\n Media Status: " + status +
         "\n Stalled Timeout: " + (25 - stalledCounter) +
