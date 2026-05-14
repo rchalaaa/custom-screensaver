@@ -1,9 +1,8 @@
 <div align="center">
-<img src="assets/icon130.png" alt="Aerial webOS logo" width="200">
-<br><h1>Aerial webOS screensaver (fork of <a href="https://github.com/webosbrew/custom-screensaver">custom-screensaver</a>)</h1>
+<img src="assets/icon_130x130.png" alt="Aerial webOS logo" width="200">
+<br><h1>Aerial webOS screensaver (fork of <a href="https://github.com/aabytt/custom-screensaver-aerial">custom-screensaver-aerial</a>)</h1>
    
-<a href="https://github.com/aabytt/custom-screensaver-aerial/releases/latest"><img src="https://img.shields.io/github/v/release/aabytt/custom-screensaver-aerial?style=flat-square" alt="Latest release"/></a>
-<a href="https://github.com/aabytt/custom-screensaver-aerial/releases"><img src="https://img.shields.io/github/downloads/aabytt/custom-screensaver-aerial/total?style=flat-square" alt="Downloads"/></a>
+<a href="https://github.com/rchalaaa/custom-screensaver/releases/latest"><img src="https://img.shields.io/github/v/release/aabytt/custom-screensaver-aerial?style=flat-square" alt="Latest release"/></a>
 
 </div>
 
