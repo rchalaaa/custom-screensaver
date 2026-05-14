@@ -147,7 +147,7 @@ function renderApp() {
     "      </div>" +
     '      <label class="toggle-card large-toggle">' +
     "        <span>" +
-    "          <strong>Enable screensaver</strong>" +
+    "          <strong>Enable customscreensaver</strong>" +
     '          <small id="enabledText">Applies now and after reboot.</small>' +
     "        </span>" +
     '        <input id="enabled" type="checkbox" />' +
@@ -181,8 +181,8 @@ function renderApp() {
     '      <div class="toggle-grid">' +
     createToggleMarkup(
       "showPoi",
-      "Points of interest",
-      "Show POI labels on the overlay.",
+      "Description",
+      "Show the aerial video description.",
     ) +
     createToggleMarkup("showName", "Name", "Show the aerial video name.") +
     createToggleMarkup("showTime", "Time", "Show the current time.") +
