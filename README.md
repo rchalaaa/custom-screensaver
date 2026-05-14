@@ -29,18 +29,6 @@
 - Launch screensaver immediately for testing
 - Custom OSD fonts: add `.ttf` or `.otf` files to `assets/`, then rebuild so they appear in the UI.
 
-## Development
-
-This fork no longer uses Enyo/Moonstone for the configuration app. The webOS app is built as a small static app:
-
-```sh
-pnpm install
-pnpm run build
-pnpm run package
-```
-
-`pnpm run build` creates `dist/` and generates the font selector from font files in `assets/`. `pnpm run package` creates the installable `.ipk` with `ares-package`.
-
 ## How to install
 
 ### Method 1, using webos dev manager:
