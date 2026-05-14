@@ -25,18 +25,28 @@ WebOSWindow {
     color : "black"
     appId : "com.webos.app.screensaver"
     visible : true
-    property var poi
+    property var poi : ({ strings: {}, date: null })
     property var poiIndex: 0
-    property var settings
-    property var playList
+    property var settings : ({
+        localeLang: "en-US",
+        sourceType: "url-4K-SDR",
+        osdOpacity: 100,
+        osdFontFile: "SegoeUI-Light.ttf",
+        debug: false,
+        showPoi: true,
+        showName: true,
+        showTime: true,
+        showDate: true,
+        playLowerQuality: true
+    })
+    property var playList : ({ assets: [] })
     property int randomIndex
     property int stalledCounter : 0
     property string sourceAlt
-    property string basePath : "file:///media/developer/apps/usr/palm/applications/org.aabytt.webos.custom-screensaver-aerial/assets/"
+    property string basePath : "file:///media/developer/apps/usr/palm/applications/org.rchalaaa.webos.custom-screensaver/assets/"
     Component.onCompleted : {
         init()
         notificationsService.set('disable')
-        playRandomVideo()
     }
     I.ILib {
         id : ilib
@@ -51,7 +61,7 @@ WebOSWindow {
     Timer {
         id : refreshOSD
         interval : 1000
-        running : true
+        running : false
         repeat : true
         onTriggered : {
             checkError()
@@ -161,7 +171,7 @@ WebOSWindow {
                 Layout.fillWidth: true
                 opacity : settings.osdOpacity / 100
                 visible : settings ? (settings.showName !== false) : true
-                text : poi.strings[playList.assets[randomIndex].localizedNameKey]
+                text : playList.assets.length ? poi.strings[playList.assets[randomIndex].localizedNameKey] : ""
                 font.family : osdFontFamily()
                 font.letterSpacing : -1
                 font.pixelSize : 54
@@ -177,7 +187,7 @@ WebOSWindow {
                 Layout.fillWidth: true
                 opacity : name.opacity
                 visible : settings ? (settings.showPoi !== false) : true
-                text : poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]]
+                text : playList.assets.length ? poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]] : ""
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
                 font.pixelSize : name.font.pixelSize - 10
@@ -228,7 +238,7 @@ WebOSWindow {
 }
     Text {
         id : debug
-        visible : settings.debug
+        visible : settings && settings.debug
         horizontalAlignment : Text.AlignRight
         anchors.right : parent.right
         anchors.margins : 25
@@ -244,10 +254,18 @@ WebOSWindow {
         loadJSONData(basePath + 'settings.json', 'settings', loadResources)
     }
     function loadResources() {
-        loadJSONData(basePath + 'videos.json', 'playList')
-        loadJSONData(basePath + 'locales/' + settings.localeLang + '.json', 'poi', playRandomVideo)
+        loadJSONData(basePath + 'videos.json', 'playList', function () {
+            loadJSONData(basePath + 'locales/' + settings.localeLang + '.json', 'poi', startPlayback)
+        })
+    }
+    function startPlayback() {
+        refreshOSD.running = true
+        playRandomVideo()
     }
     function playRandomVideo() {
+        if (!playList.assets.length) {
+            return
+        }
         stalledCounter = 0
         randomIndex = Math.floor(Math.random() * playList.assets.length)
         if (!playList.assets[randomIndex].viewed) {
@@ -352,6 +370,9 @@ WebOSWindow {
         videoOutput.bufferProgress * 33.334).toFixed(0) + "%"
     }
     function updateOSD() {
+        if (!playList.assets.length) {
+            return
+        }
         var DateFmt = ilib.require("DateFmt.js")
         var now = new Date()
         var time = new DateFmt({
@@ -393,7 +414,9 @@ WebOSWindow {
                 if (xhr.status === 200) {
                     var jsonData = JSON.parse(xhr.responseText)
                     eval(targetVar + " = jsonData")
-                    callback()
+                    if (callback) {
+                        callback()
+                    }
                 } else {
                     console.error("Error loading JSON data:", xhr.statusText)
                     name.text = xhr.statusText

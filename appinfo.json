@@ -1,11 +1,12 @@
 {
-  "id": "org.aabytt.webos.custom-screensaver-aerial",
-  "version": "1.0.12",
-  "vendor": "aabytt",
+  "id": "org.rchalaaa.webos.custom-screensaver",
+  "version": "1.0.1",
+  "vendor": "rchalaaa",
   "title": "WebOS Aerial Screensaver",
-  "icon": "assets/icon130.png",
-  "largeIcon": "assets/icon130.png",
+  "icon": "assets/icon_90x90.png",
+  "largeIcon": "assets/icon_130x130.png",
+  "splashBackground": "assets/splash.png",
   "main": "index.html",
-  "iconColor": "#2d353d",
+  "iconColor": "#111827",
   "type": "web"
 }
