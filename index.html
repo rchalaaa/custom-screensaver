@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aerial Screensaver Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+    <style>
+      @font-face {
+        font-family: "Helvetica Neue Local";
+        src: url("assets/HelveticaNeue.ttf") format("truetype");
+      }
+
+      @font-face {
+        font-family: "Segoe UI Light Local";
+        src: url("assets/SegoeUI-Light.ttf") format("truetype");
+      }
+
+      :root {
+        --osd-font: "Helvetica Neue Local", "Segoe UI Light Local", sans-serif;
+        --osd-opacity: 1;
+        --osd-scale: 1;
+        --screen-scale: 1;
+        --text-scale: calc(var(--osd-scale) * var(--screen-scale));
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #000;
+        cursor: none;
+      }
+
+      video {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #000;
+        opacity: 1;
+        transition: opacity 1200ms ease;
+      }
+
+      video.fading {
+        opacity: 0;
+      }
+
+      .osd {
+        position: fixed;
+        inset: calc(50px * var(--screen-scale));
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: calc(32px * var(--screen-scale));
+        color: #fff;
+        font-family: var(--osd-font);
+        letter-spacing: calc(-1px * var(--screen-scale));
+        opacity: var(--osd-opacity);
+        transition: opacity 1200ms ease;
+        pointer-events: none;
+      }
+
+      .osd.fading {
+        opacity: 0;
+      }
+
+      .left,
+      .right {
+        min-width: 0;
+      }
+
+      .left {
+        flex: 1;
+      }
+
+      .right {
+        flex: 0 0 auto;
+        margin-left: auto;
+        text-align: right;
+      }
+
+      .name {
+        overflow: hidden;
+        font-size: calc(54px * var(--text-scale));
+        line-height: 1.05;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .poi,
+      .date {
+        overflow: hidden;
+        font-size: calc(44px * var(--text-scale));
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .time {
+        font-size: calc(84px * var(--text-scale));
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .cursor-hint {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: calc(240px * var(--screen-scale));
+        height: calc(240px * var(--screen-scale));
+        color: #fff;
+        opacity: 0.82;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        transition: opacity 300ms ease;
+        z-index: 10;
+      }
+
+      .cursor-hint.idle {
+        opacity: 0;
+      }
+
+      .cursor-hint circle {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.4;
+      }
+
+      .cursor-hint text {
+        fill: currentColor;
+        font-family: "Inter", Arial, sans-serif;
+        font-size: 8px;
+        font-weight: 500;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+
+    </style>
+  </head>
+  <body>
+    <video id="video" autoplay muted loop playsinline></video>
+
+    <svg id="cursorHint" class="cursor-hint" viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <path id="cursorTextPath" d="M 14 60 A 46 46 0 0 0 106 60" />
+      </defs>
+      <circle cx="60" cy="60" r="32"></circle>
+      <text dy="12">
+        <textPath href="#cursorTextPath" startOffset="50%" text-anchor="middle">click to change</textPath>
+      </text>
+    </svg>
+
+    <main class="osd" aria-label="Screensaver information">
+      <section class="left">
+        <div id="name" class="name"></div>
+        <div id="poi" class="poi"></div>
+      </section>
+      <section class="right">
+        <div id="time" class="time"></div>
+        <div id="date" class="date"></div>
+      </section>
+    </main>
+
+    <script>
+      const defaults = {
+        localeLang: "en-US",
+        sourceType: "url-4K-SDR",
+        osdOpacity: 100,
+        osdTextScale: 100,
+        osdFontFile: "SegoeUI-Light.ttf",
+        showPoi: true,
+        showName: true,
+        showTime: true,
+        showDate: true,
+      };
+
+      const video = document.getElementById("video");
+      const nameEl = document.getElementById("name");
+      const poiEl = document.getElementById("poi");
+      const timeEl = document.getElementById("time");
+      const dateEl = document.getElementById("date");
+      const osdEl = document.querySelector(".osd");
+      const cursorHintEl = document.getElementById("cursorHint");
+
+      let currentAsset;
+      let assets = [];
+      let appSettings = defaults;
+      let sourceIndex = 0;
+      let sources = [];
+      let isChangingVideo = false;
+      let fadeInWhenReady = false;
+      let cursorIdleTimer;
+      let cursorAnimationFrame;
+      let cursorX = window.innerWidth / 2;
+      let cursorY = window.innerHeight / 2;
+      let targetCursorX = cursorX;
+      let targetCursorY = cursorY;
+      let locale = { strings: {}, date: null };
+
+      async function loadJson(path) {
+        const response = await fetch(path);
+        if (!response.ok) {
+          throw new Error(`Could not load ${path}`);
+        }
+        return response.json();
+      }
+
+      function firstPoiKey(asset) {
+        return Object.keys(asset.pointsOfInterest || {})
+          .map(Number)
+          .sort((a, b) => a - b)[0];
+      }
+
+      function setVisibility(settings) {
+        nameEl.classList.toggle("hidden", settings.showName === false);
+        poiEl.classList.toggle("hidden", settings.showPoi === false);
+        timeEl.classList.toggle("hidden", settings.showTime === false);
+        dateEl.classList.toggle("hidden", settings.showDate === false);
+      }
+
+      function setOsdStyle(settings) {
+        const fontFamily =
+          settings.osdFontFile === "SegoeUI-Light.ttf"
+            ? "Segoe UI Light Local"
+            : "Helvetica Neue Local";
+
+        document.documentElement.style.setProperty(
+          "--osd-font",
+          `"${fontFamily}", sans-serif`,
+        );
+        document.documentElement.style.setProperty(
+          "--osd-opacity",
+          (settings.osdOpacity || 100) / 100,
+        );
+        document.documentElement.style.setProperty(
+          "--osd-scale",
+          (settings.osdTextScale || 100) / 100,
+        );
+      }
+
+      function updateScreenScale() {
+        const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+        document.documentElement.style.setProperty("--screen-scale", scale);
+      }
+
+      function moveCursorHint(event) {
+        targetCursorX = event.clientX;
+        targetCursorY = event.clientY;
+        cursorHintEl.classList.remove("idle");
+
+        clearTimeout(cursorIdleTimer);
+        cursorIdleTimer = setTimeout(() => {
+          cursorHintEl.classList.add("idle");
+        }, 1000);
+      }
+
+      function animateCursorHint() {
+        cursorX += (targetCursorX - cursorX) * 0.12;
+        cursorY += (targetCursorY - cursorY) * 0.12;
+        cursorHintEl.style.left = `${cursorX}px`;
+        cursorHintEl.style.top = `${cursorY}px`;
+        cursorAnimationFrame = requestAnimationFrame(animateCursorHint);
+      }
+
+      function updateClock(settings) {
+        const now = new Date();
+        timeEl.textContent = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+        if (locale.date) {
+          dateEl.textContent = `${locale.date.daysOfWeek[now.getDay()]}, ${now.getDate()} ${locale.date.months[now.getMonth()]}`;
+        } else {
+          dateEl.textContent = now.toLocaleDateString(settings.localeLang, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          });
+        }
+      }
+
+      function updatePoi() {
+        if (!currentAsset || !currentAsset.pointsOfInterest) {
+          return;
+        }
+
+        const second = Math.floor(video.currentTime);
+        const poiKey =
+          currentAsset.pointsOfInterest[second] ||
+          currentAsset.pointsOfInterest[firstPoiKey(currentAsset)];
+        poiEl.textContent = locale.strings[poiKey] || poiKey || "";
+      }
+
+      function playNextSource() {
+        if (!sources.length || sourceIndex >= sources.length) {
+          return;
+        }
+
+        video.src = sources[sourceIndex];
+        sourceIndex += 1;
+      }
+
+      function previewVideoUrl(url) {
+        return url.replace(
+          "https://sylvan.apple.com/",
+          "http://sylvan.apple.com/",
+        );
+      }
+
+      function setAsset(asset) {
+        currentAsset = asset;
+        sourceIndex = 0;
+        sources = [
+          currentAsset[appSettings.sourceType],
+          currentAsset["url-1080-H264"],
+          currentAsset["url-4K-SDR"],
+          currentAsset["url-1080-SDR"],
+        ]
+          .filter(Boolean)
+          .map(previewVideoUrl);
+
+        playNextSource();
+        nameEl.textContent =
+          locale.strings[currentAsset.localizedNameKey] ||
+          currentAsset.localizedNameKey;
+        updatePoi();
+      }
+
+      function randomAsset() {
+        if (assets.length < 2) {
+          return assets[0];
+        }
+
+        let nextAsset = currentAsset;
+        while (nextAsset === currentAsset) {
+          nextAsset = assets[Math.floor(Math.random() * assets.length)];
+        }
+        return nextAsset;
+      }
+
+      function changeVideo() {
+        if (isChangingVideo || !assets.length) {
+          return;
+        }
+
+        isChangingVideo = true;
+        video.classList.add("fading");
+        osdEl.classList.add("fading");
+
+        setTimeout(() => {
+          fadeInWhenReady = true;
+          setAsset(randomAsset());
+          video.currentTime = 0;
+        }, 1200);
+      }
+
+      function fadeInLoadedVideo() {
+        if (!fadeInWhenReady) {
+          return;
+        }
+
+        fadeInWhenReady = false;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            video.classList.remove("fading");
+            osdEl.classList.remove("fading");
+            setTimeout(() => {
+              isChangingVideo = false;
+            }, 1200);
+          });
+        });
+      }
+
+      async function start() {
+        const settings = {
+          ...defaults,
+          ...(await loadJson("assets/settings.json")),
+        };
+        appSettings = settings;
+        const playlist = await loadJson("assets/videos.json");
+        locale = await loadJson(`assets/locales/${settings.localeLang}.json`);
+
+        assets = playlist.assets || [];
+
+        updateScreenScale();
+        setOsdStyle(settings);
+        setVisibility(settings);
+        setAsset(randomAsset());
+        updateClock(settings);
+        animateCursorHint();
+
+        setInterval(() => {
+          updatePoi();
+          updateClock(settings);
+        }, 1000);
+      }
+
+      start().catch((error) => {
+        nameEl.textContent = error.message;
+      });
+
+      video.addEventListener("error", playNextSource);
+      video.addEventListener("loadeddata", fadeInLoadedVideo);
+      window.addEventListener("resize", updateScreenScale);
+      document.addEventListener("mousemove", moveCursorHint);
+      document.addEventListener("click", changeVideo);
+    </script>
+  </body>
+</html>
