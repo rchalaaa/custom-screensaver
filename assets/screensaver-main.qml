@@ -177,8 +177,6 @@ WebOSWindow {
                 font.pixelSize : 54 * ((settings && settings.osdTextScale ? settings.osdTextScale : 100) / 100)
                 fontSizeMode : Text.Fit
                 color : "white"
-                style : Text.Raised
-                styleColor : "black"
                 elide : Text.ElideRight
             }
 
@@ -190,7 +188,7 @@ WebOSWindow {
                 text : playList.assets.length ? poi.strings[playList.assets[randomIndex].pointsOfInterest[poiIndex]] : ""
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
-                font.pixelSize : name.font.pixelSize - 8
+                font.pixelSize : name.font.pixelSize - 10
                 fontSizeMode : name.fontSizeMode
                 color : name.color
                 style : name.style
@@ -211,7 +209,7 @@ WebOSWindow {
                 visible : settings ? (settings.showTime !== false) : true
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
-                font.pixelSize : name.font.pixelSize + 32
+                font.pixelSize : name.font.pixelSize + 30
                 fontSizeMode : name.fontSizeMode
                 color : name.color
                 style : name.style
@@ -226,7 +224,7 @@ WebOSWindow {
                 visible : settings ? (settings.showDate !== false) : true
                 font.family : name.font.family
                 font.letterSpacing : name.font.letterSpacing
-                font.pixelSize : name.font.pixelSize - 8
+                font.pixelSize : name.font.pixelSize - 10
                 fontSizeMode : name.fontSizeMode
                 color : name.color
                 style : name.style
