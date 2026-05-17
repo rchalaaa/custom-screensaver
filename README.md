@@ -6,28 +6,44 @@
 
 </div>
 
-## What's new in this fork
+## About This Fork
+
+This fork is a complete remake of **custom-screensaver-aerial** originally created by aabytt.
+
+It focuses mainly on improving the overall user experience and application customization, featuring a fully redesigned modern user interface that makes settings easier to find and configure.
+
+Several confusing options from the original project, such as temporary apply modes, have been removed to simplify the experience. Now there is only one straightforward option to enable or disable the screensaver.
+
+### Improvements & Features
+
+- Completely redesigned modern UI
+- Simplified configuration experience
+- Automatic language synchronization between the app and settings
+- Individual toggles for on-screen information:
+  - Video title
+  - Description
+  - Time
+  - Date
+- Adjustable text scaling for better content fitting
+- Multiple built-in fonts included
+- Support for custom user-installed fonts
+- Enhanced customization options throughout the application
+
+The goal of this fork is to provide a cleaner, simpler, and more customizable experience while preserving the beauty of the original Aerial screensaver project.
+
+## Features from aabytt/custom-screensaver-aerial
 
 - [190+ aerial videos](https://aabytt.github.io/aerial-preview/) from different sources.
-- Modern TV-friendly configuration UI without Enyo/Moonstone.
-- One-click enable/disable with reboot persistence.
-- 40+ locales for OSD.
-- Source type selection, including FullHD/4K SDR and Dolby Vision.
-- OSD controls for language, opacity, fields, and custom fonts.
+- 40+ locales for OSD
+- Source type selection (FullHD/4k SDR or Dolby Vision)
 - Requires root and Homebrew channel
-- Compatible with webOS 5 (2020), webOS 6 (2021), webOS 22 (2022), webOS 23 (2023)
+- Launch screensaver immediately for testing
 
 ## Disclaimer
 
 - App replaces original webOS screensaver. Use at your own risk.
-
-## Features
-
-- Enable or disable the custom screensaver from a single setting.
-- Automatically applies or unapplies the screensaver whenever the app opens.
-- Automatically manages the Homebrew boot script for persistence after reboot.
-- Launch screensaver immediately for testing
-- Custom OSD fonts: add `.ttf` or `.otf` files to `assets/`, then rebuild so they appear in the UI.
+- Requires root and Homebrew channel
+- Compatible with webOS 5 (2020), webOS 6 (2021), webOS 22 (2022), webOS 23 (2023)
 
 ## How to install
 
