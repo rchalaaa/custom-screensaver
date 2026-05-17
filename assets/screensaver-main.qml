@@ -174,7 +174,7 @@ WebOSWindow {
                 text : playList.assets.length ? poi.strings[playList.assets[randomIndex].localizedNameKey] : ""
                 font.family : osdFontFamily()
                 font.letterSpacing : -1
-                font.pixelSize : 54 * ((settings && settings.osdTextScale ? settings.osdTextScale : 100) / 100)
+                font.pixelSize : 50 * ((settings && settings.osdTextScale ? settings.osdTextScale : 100) / 100)
                 fontSizeMode : Text.Fit
                 color : "white"
                 elide : Text.ElideRight
